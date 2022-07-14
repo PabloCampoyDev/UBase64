@@ -1,5 +1,5 @@
 {** Douglas Colombo
-  * Classe de convers„o de arquivos em texto
+  * Classe de convers√£o de arquivos em texto
   * e de Texto em Arquivos, BASE64
 **}
 
@@ -15,6 +15,9 @@ function FileToBase64(Arquivo : String) : String;
 function StreamToBase64(STream : TMemoryStream) : String;
 function Base64ToBitmap(imagem : String) : TBitmap;
 function BitmapToBase64(imagem : TBitmap) : String;
+
+function Base64FromBitmap(Bitmap: TBitmap): string;
+function Base64FromFile(Arquivo : string):string;
 
 implementation
 
@@ -111,6 +114,60 @@ begin
         sTream.DisposeOf;
         sTream := nil;
      Except End;
+  end;
+end;
+
+function Base64FromBitmap(Bitmap: TBitmap): string;
+var
+  Input: TBytesStream;
+  Output: TStringStream;
+  Encoding: TBase64Encoding;
+begin
+  Input := TBytesStream.Create;
+  try
+    Bitmap.SaveToStream(Input);
+    Input.Position := 0;
+    Output := TStringStream.Create('', TEncoding.ASCII);
+    try
+      Encoding := TBase64Encoding.Create(0);
+      try
+        Encoding.Encode(Input, Output);
+        Result := Output.DataString;
+      finally
+        Encoding.Free;
+      end;
+    finally
+      Output.Free;
+    end;
+  finally
+    Input.Free;
+  end;
+end;
+
+function Base64FromFile(Arquivo : string):string;
+var
+  Input: TBytesStream;
+  Output: TStringStream;
+  Encoding: TBase64Encoding;
+begin
+  Input := TBytesStream.Create;
+  try
+    Input.LoadFromFile(Arquivo);
+    Input.Position := 0;
+    Output := TStringStream.Create('', TEncoding.ASCII);
+    try
+      Encoding := TBase64Encoding.Create(0);
+      try
+        Encoding.Encode(Input, Output);
+        Result := Output.DataString;
+      finally
+        Encoding.Free;
+      end;
+    finally
+      Output.Free;
+    end;
+  finally
+    Input.Free;
   end;
 end;
 
